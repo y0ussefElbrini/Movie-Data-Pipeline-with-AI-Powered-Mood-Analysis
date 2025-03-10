@@ -1,0 +1,16 @@
+[
+  {"name": "movie_id", "type": "INTEGER", "mode": "REQUIRED"},
+  {"name": "title", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "release_year", "type": "INTEGER", "mode": "NULLABLE"},
+  {"name": "release_date", "type": "DATE", "mode": "NULLABLE"},
+  {"name": "original_language", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "overview", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "budget", "type": "FLOAT", "mode": "NULLABLE"},
+  {"name": "revenue", "type": "FLOAT", "mode": "NULLABLE"},
+  {"name": "popularity", "type": "FLOAT", "mode": "NULLABLE"},
+  {"name": "vote_average", "type": "FLOAT", "mode": "NULLABLE"},
+  {"name": "vote_count", "type": "INTEGER", "mode": "NULLABLE"},
+  {"name": "adult", "type": "BOOLEAN", "mode": "NULLABLE"},
+  {"name": "genres", "type": "STRING", "mode": "REPEATED"}
+  ]
+  
