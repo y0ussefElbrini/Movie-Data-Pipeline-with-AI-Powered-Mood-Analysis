@@ -1,6 +1,9 @@
 # 🎬 Movie Data Pipeline with AI-Powered Mood Analysis
 
 ## 🚀 Project Overview
+
+![Project pipeline](docs/pipeline.png)
+
 This project is a **cloud-based data pipeline** that ingests, processes, and analyzes movie data from The Movie Database (TMDb) API. The workflow automates the extraction, transformation, and loading (ETL) of movie information into Google Cloud Platform (GCP), and enhances it using **AI-powered mood classification** with Vertex AI.
 
 ### **🔹 Key Features**
