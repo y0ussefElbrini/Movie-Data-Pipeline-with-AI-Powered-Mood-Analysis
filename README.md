@@ -123,25 +123,25 @@ Make sure to replace:
 ### **🔹 Step 3: Initialize and Deploy Infrastructure**
 Run the following Terraform commands inside the infrastructure folder to deploy the resources:
 
-1️⃣ Initialize Terraform
+1. Initialize Terraform
 ```sh
 terraform init
 ```
 This command downloads necessary Terraform providers and dependencies.
 
-2️⃣ Plan the Deployment
+2. Plan the Deployment
 ```sh
 terraform plan
 ```
 This step previews the resources Terraform will create.
 
-3️⃣ Apply Changes and Create Resources
+3. Apply Changes and Create Resources
 ```sh
 terraform apply
 ```
 Terraform will prompt for confirmation. Type yes to proceed.
 
-4️⃣ Verify the Infrastructure After deployment, you can verify that the resources are created by running:
+4. Verify the Infrastructure After deployment, you can verify that the resources are created by running:
 
 ```sh
 terraform show
@@ -163,18 +163,18 @@ cd airflow
 
 Airflow requires Google Cloud credentials to interact with GCS, BigQuery, and Vertex AI.
 
-1️⃣ Ensure that the service account key is available at:
+1. Ensure that the service account key is available at:
 
 - `airflow/keys/my-creds.json`
 
-2️⃣ Set the environment variable in Airflow containers: Open the docker-compose.yaml file and add the following line inside environment for each container that needs access:
+2. Set the environment variable in Airflow containers: Open the docker-compose.yaml file and add the following line inside environment for each container that needs access:
 
 ```yaml
 environment:
   - GOOGLE_APPLICATION_CREDENTIALS=/opt/airflow/keys/my-creds.json
 ```
 
-3️⃣ Mount the keys/ directory in Docker volumes: Ensure the following line is in docker-compose.yaml:
+3. Mount the keys/ directory in Docker volumes: Ensure the following line is in docker-compose.yaml:
 
 ```yaml
 volumes:
@@ -185,19 +185,19 @@ volumes:
 
 Run the following commands inside the airflow/ directory:
 
-1️⃣ **Initialize the Airflow database**
+1.  **Initialize the Airflow database**
 
 ```sh
 docker-compose up airflow-init
 ```
 
-2️⃣ **Start all Airflow services**
+2.  **Start all Airflow services**
 
 ```sh
 docker-compose up -d
 ```
 
-3️⃣ **Verify that all services are running**
+3.  **Verify that all services are running**
 
 ```sh
 docker ps
@@ -212,7 +212,7 @@ You should see the following containers running:
 `airflow-postgres`
 `airflow-redis`
 
-4️⃣ **Access the Airflow UI Open your browser and navigate to:**
+4.  **Access the Airflow UI Open your browser and navigate to:**
 
 ```arduino
 http://localhost:8080
@@ -226,19 +226,19 @@ Password: `airflow`
 ### **🔹 Step 4: Install Required Python Libraries in Airflow
 Since Airflow runs in Docker containers, you need to install additional dependencies inside the running containers.
 
-1️⃣ **Attach to the airflow-worker container (or any other relevant container):**
+1.  **Attach to the airflow-worker container (or any other relevant container):**
 
 ```sh
 docker exec -it airflow-airflow-worker-1 /bin/bash
 ```
 
-2️⃣ **Install required Python libraries:**
+2.  **Install required Python libraries:**
 
 ```sh
 pip install google-cloud-bigquery google-cloud-storage google-cloud-aiplatform requests pandas
 ```
 
-3️⃣ **Exit the container:**
+3.  **Exit the container:**
 
 ```sh
 exit
@@ -251,12 +251,12 @@ Your DAG (Directed Acyclic Graph) is responsible for:
 - Storing it in Google Cloud Storage (GCS).
 - Loading data into BigQuery for further processing.
 
-1️⃣ **Copy your DAG file into the dags/ directory: Ensure your DAG is inside:**
+1.  **Copy your DAG file into the dags/ directory: Ensure your DAG is inside:**
 
 ```bash
 airflow/dags/upload_to_gcs_dag.py
 ```
-2️⃣ Trigger the DAG manually Go to Airflow UI (http://localhost:8080), navigate to the upload_to_gcs_dag DAG, and click "Trigger DAG".
+2.  Trigger the DAG manually Go to Airflow UI (http://localhost:8080), navigate to the upload_to_gcs_dag DAG, and click "Trigger DAG".
 
 
 ### **🔹 Step 6: Stop and Restart Airflow
@@ -271,3 +271,92 @@ To restart:
 ```bash
 docker-compose up -d
 ```
+
+### **4️⃣ 🕰️ Backfilling Historical Movie Data (from 2000 to 2024)
+
+To populate the database with historical movie data from **TMDB API**, a **backfill process** was triggered using Apache Airflow.
+
+This DAG is configured to run **yearly** (`@yearly`) starting from **January 1st, 2000**.
+
+### ✅ Steps to Run the Backfill
+
+1. **Start your Airflow environment**
+    
+    ```bash
+    cd airflow
+    docker-compose up -d
+    ```
+    
+2. **Access the Airflow UI**
+    - Open your browser and go to: [http://localhost:8080](http://localhost:8080/)
+    - Login (default user/pass: `airflow` / `airflow`)
+3. **Trigger backfill manually**
+    - Go to the DAG named **`upload_to_gcs_dag`**
+    - Ensure the DAG is **enabled (toggle is ON)**
+    - Click on the **calendar icon** to choose a start and end date (e.g. from `2000-01-01` to `2025-01-01`)
+    - Click **"Run"** to backfill historical data for each year
+4. **Monitor progress**
+    - Click on the DAG name to visualize task status
+    - Use the **Graph View** to inspect each task (fetch, upload, load to BigQuery, merge)
+5. ✅ Once finished, you will have one file per year (e.g. `movies_2000.json`, `movies_2001.json`, ...) in **Cloud Storage**, and the merged data in BigQuery under:
+    
+    ```markdown
+    Dataset: movies
+    Table: raw_movies
+    ```
+
+To populate the data from 2000 to the present, the DAG was **backfilled** using the `@yearly` schedule. This allowed historical data to be retrieved from the TMDB API, stored in GCS, and loaded into BigQuery.
+
+Below is a screenshot of the Airflow UI during the backfilling process:
+
+![airflow UI](docs/Airflow_UI_backfill.png)
+
+🔁 **Explanation:**
+
+- ✅ Green: Successful task execution.
+- 🟥 Red: Task failure due to issues like API overload or timeout.
+- 🟧 Orange: Retry or temporarily failed tasks.
+
+Sometimes the TMDB API becomes overloaded or rate-limited during long backfills, causing a few tasks to fail (red or orange boxes). In such cases, the DAG was manually restarted from the failed task using the Airflow UI.
+
+👉 This demonstrates the robustness and observability of Airflow for managing large-scale, year-wise data ingestion pipelines.
+
+---
+
+### **5️⃣ 📊 Data Exploration Dashboard with Streamlit **
+
+To better understand the movie dataset, a **Streamlit dashboard** was created to visualize key insights such as:
+
+- 📅 Distribution of movies over the years and months
+- 🎭 Most common genres
+- 🌍 Language distribution
+
+This interactive app is powered by **BigQuery** and **Google Cloud**, and allows users to explore the data effortlessly.
+
+🖼️ Below is a screenshot of the dashboard:
+
+![airflow UI](docs/streamlit_dashboard.png)
+
+🔧 **Technologies Used**:
+
+- Streamlit
+- Google BigQuery
+- Pandas
+- Altair / Matplotlib for plotting
+
+🚀 **Launch the Streamlit Dashboard**
+
+The dashboard is located in the `app/` folder and the script is named `streamlit_dashboard.py`.
+
+To run the dashboard locally, follow these steps:
+
+```bash
+cd app
+streamlit run streamlit_dashboard.py
+```
+
+Once launched, it will open a web page (usually at `http://localhost:8501`) showing:
+
+- 📅 Movie distribution by release year and month
+- 🎭 Top 10 movie genres
+- 🌍 Language usage across the dataset

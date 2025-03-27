@@ -1,6 +1,11 @@
 import streamlit as st
 from google.cloud import bigquery
 import pandas as pd
+import os
+
+# 🔐 Auth GCP
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path-to/my-creds.json"  # ← Update path
+
 
 # 🔹 CONFIGURATION GCP
 PROJECT_ID = "terraform-demo-448809"
@@ -50,4 +55,4 @@ else:
     st.warning("😢 Aucun film trouvé pour ce mood.")
 
 # 🎉 Footer
-st.markdown("🚀 *Développé avec ❤️ par [Votre Nom]*")
+st.markdown("🚀 *Développé avec ❤️ par Youssef EL BRINI*")
