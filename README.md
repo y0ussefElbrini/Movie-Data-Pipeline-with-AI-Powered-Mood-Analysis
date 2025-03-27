@@ -223,7 +223,7 @@ Login with:
 Username: `airflow`
 Password: `airflow`
 
-### **🔹 Step 4: Install Required Python Libraries in Airflow
+### **🔹 Step 4: Install Required Python Libraries in Airflow **
 Since Airflow runs in Docker containers, you need to install additional dependencies inside the running containers.
 
 1.  **Attach to the airflow-worker container (or any other relevant container):**
@@ -244,7 +244,7 @@ pip install google-cloud-bigquery google-cloud-storage google-cloud-aiplatform r
 exit
 ```
 
-### **🔹 Step 5: Deploy the Airflow DAG
+### **🔹 Step 5: Deploy the Airflow DAG **
 Your DAG (Directed Acyclic Graph) is responsible for:
 
 - Extracting movie data from TMDB API.
@@ -259,7 +259,7 @@ airflow/dags/upload_to_gcs_dag.py
 2.  Trigger the DAG manually Go to Airflow UI (http://localhost:8080), navigate to the upload_to_gcs_dag DAG, and click "Trigger DAG".
 
 
-### **🔹 Step 6: Stop and Restart Airflow
+### **🔹 Step 6: Stop and Restart Airflow **
 To stop all running services:
 
 ```bash
@@ -272,7 +272,7 @@ To restart:
 docker-compose up -d
 ```
 
-### **4️⃣ 🕰️ Backfilling Historical Movie Data (from 2000 to 2024)
+### **4️⃣ 🕰️ Backfilling Historical Movie Data (from 2000 to 2024) **
 
 To populate the database with historical movie data from **TMDB API**, a **backfill process** was triggered using Apache Airflow.
 
@@ -360,3 +360,40 @@ Once launched, it will open a web page (usually at `http://localhost:8501`) show
 - 📅 Movie distribution by release year and month
 - 🎭 Top 10 movie genres
 - 🌍 Language usage across the dataset
+
+### 6️⃣🎭 AI-Powered Movie Mood Recommender
+
+This Streamlit application allows users to **discover movies based on their emotional mood**, using descriptions enhanced by **Vertex AI**. The LLM classifies each movie into moods like *Happy, Intense, Dark, Sad...* based on their synopsis, stored in BigQuery.
+
+🧠 **How it works:**
+
+- The Gemini model (via Vertex AI) analyzes the `overview` of each movie.
+- Each film is automatically labeled with a `mood` and a `mood_score` (0–100).
+- Users select a mood and receive AI-recommended films accordingly.
+
+📁 **Location:**
+
+`app/streamlit_app.py`
+
+🚀 **To launch the app:**
+
+```bash
+cd app
+streamlit run streamlit_app.py
+
+```
+
+🛡️ **Make sure to update the credentials path:**
+In `streamlit_app.py`, set the correct path to your Service Account key JSON:
+
+```python
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "keys/my-creds.json"
+```
+
+📸 **Preview of the Mood Recommender App:**
+
+**🔻 Intense Mood:**
+![airflow UI](docs/movie_mood_recommender_intense_mood.png)
+
+**🔻 Dark Mood:**
+![airflow UI](docs/movie_mood_recommender_dark_mood.png)
