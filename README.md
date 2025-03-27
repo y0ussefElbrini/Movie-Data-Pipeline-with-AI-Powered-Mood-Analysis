@@ -223,7 +223,7 @@ Login with:
 Username: `airflow`
 Password: `airflow`
 
-### **🔹 Step 4: Install Required Python Libraries in Airflow **
+### **🔹 Step 4: Install Required Python Libraries in Airflow**
 Since Airflow runs in Docker containers, you need to install additional dependencies inside the running containers.
 
 1.  **Attach to the airflow-worker container (or any other relevant container):**
@@ -244,7 +244,7 @@ pip install google-cloud-bigquery google-cloud-storage google-cloud-aiplatform r
 exit
 ```
 
-### **🔹 Step 5: Deploy the Airflow DAG **
+### **🔹 Step 5: Deploy the Airflow DAG**
 Your DAG (Directed Acyclic Graph) is responsible for:
 
 - Extracting movie data from TMDB API.
@@ -259,7 +259,7 @@ airflow/dags/upload_to_gcs_dag.py
 2.  Trigger the DAG manually Go to Airflow UI (http://localhost:8080), navigate to the upload_to_gcs_dag DAG, and click "Trigger DAG".
 
 
-### **🔹 Step 6: Stop and Restart Airflow **
+### **🔹 Step 6: Stop and Restart Airflow**
 To stop all running services:
 
 ```bash
@@ -272,7 +272,7 @@ To restart:
 docker-compose up -d
 ```
 
-### **4️⃣ 🕰️ Backfilling Historical Movie Data (from 2000 to 2024) **
+### **4️⃣ 🕰️ Backfilling Historical Movie Data (from 2000 to 2024)**
 
 To populate the database with historical movie data from **TMDB API**, a **backfill process** was triggered using Apache Airflow.
 
@@ -323,7 +323,7 @@ Sometimes the TMDB API becomes overloaded or rate-limited during long backfills,
 
 ---
 
-### **5️⃣ 📊 Data Exploration Dashboard with Streamlit **
+### **5️⃣ 📊 Data Exploration Dashboard with Streamlit**
 
 To better understand the movie dataset, a **Streamlit dashboard** was created to visualize key insights such as:
 
@@ -361,7 +361,7 @@ Once launched, it will open a web page (usually at `http://localhost:8501`) show
 - 🎭 Top 10 movie genres
 - 🌍 Language usage across the dataset
 
-### 6️⃣🎭 AI-Powered Movie Mood Recommender
+### **6️⃣🎭 AI-Powered Movie Mood Recommender**
 
 This Streamlit application allows users to **discover movies based on their emotional mood**, using descriptions enhanced by **Vertex AI**. The LLM classifies each movie into moods like *Happy, Intense, Dark, Sad...* based on their synopsis, stored in BigQuery.
 
