@@ -21,7 +21,7 @@ variable "location" {
 
 variable "bq_dataset_name" {
   description = "My BigQuery Dataset Name"
-  default     = "name_of_your_dataset" # Choose the name of your dataset
+  default     = "movies" 
 
 }
 

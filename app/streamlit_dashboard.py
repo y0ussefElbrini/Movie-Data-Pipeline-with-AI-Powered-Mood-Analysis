@@ -10,7 +10,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path-to/my-creds.json"  # ← Up
 # 🎯 GCP Config
 PROJECT_ID = "terraform-demo-448809"
 DATASET_NAME = "movies"
-TABLE_NAME = "raw_movies_cleaned"
+TABLE_NAME = "raw_movies"
 
 # 📥 Load data
 @st.cache_data(ttl=3600)

@@ -37,3 +37,12 @@ resource "google_bigquery_table" "raw_movies" {
     field= "release_date"
   }
 }
+
+
+resource "google_bigquery_table" "raw_movies_temp" {
+  dataset_id = google_bigquery_dataset.movies_dataset.dataset_id
+  table_id   = "raw_movies_temp"
+  schema     = file("${path.module}/schemas/raw_movies.json")
+
+  deletion_protection = false
+}

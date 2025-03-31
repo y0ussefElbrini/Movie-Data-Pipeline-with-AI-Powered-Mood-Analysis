@@ -11,6 +11,7 @@
   {"name": "vote_average", "type": "FLOAT", "mode": "NULLABLE"},
   {"name": "vote_count", "type": "INTEGER", "mode": "NULLABLE"},
   {"name": "adult", "type": "BOOLEAN", "mode": "NULLABLE"},
-  {"name": "genres", "type": "STRING", "mode": "REPEATED"}
-  ]
-  
+  {"name": "genres", "type": "STRING", "mode": "REPEATED"},
+  {"name": "mood", "type": "STRING", "mode": "NULLABLE"},
+  {"name": "mood_score", "type": "INTEGER", "mode": "NULLABLE"}
+]

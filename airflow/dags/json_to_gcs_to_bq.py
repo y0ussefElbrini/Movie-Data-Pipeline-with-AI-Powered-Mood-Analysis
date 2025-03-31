@@ -13,8 +13,8 @@ from airflow.operators.python import PythonOperator
 
 
 GCS_CONN_ID = 'google_cloud_default'
-BUCKET = 'movie-data-lake-448809-bucket'
-DATASET_NAME = 'movies'
+BUCKET = 'unique_name_of_your_bucket' #change to the name of the bucket specified in variables.tf
+DATASET_NAME = 'movies' #change to the name of the dataset specified in variables.tf
 TABLE_NAME = 'raw_movies'
 
 def fetch_genres(**kwargs):

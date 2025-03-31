@@ -1,17 +1,21 @@
 import re
+import os
 import vertexai
 from vertexai.preview.generative_models import GenerativeModel
 from google.cloud import bigquery
 
+# 🔐 Auth GCP
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path-to/my-creds.json"  # ← Update path
+
 # 🔹 CONFIGURATION GCP
-PROJECT_ID = "terraform-demo-448809"
-LOCATION = "europe-west9"
+PROJECT_ID = "name_of_your_project" #change to your project name
+LOCATION = "europe-west9" #change to your location name
 MODEL_NAME = "gemini-pro"
 
-# 🔹 Initialize Vertex AI
+# Initialize Vertex AI
 vertexai.init(project=PROJECT_ID, location=LOCATION)
 
-# 🔹 1️⃣ Ensure the columns exist in BigQuery
+#  Ensure the columns exist in BigQuery
 def ensure_columns_exist():
     """Checks and adds 'mood' and 'mood_score' columns if missing."""
     client = bigquery.Client(project=PROJECT_ID)
@@ -19,7 +23,7 @@ def ensure_columns_exist():
     query = """
         SELECT column_name 
         FROM `movies.INFORMATION_SCHEMA.COLUMNS`
-        WHERE table_name = 'raw_movies_cleaned'
+        WHERE table_name = 'raw_movies'
         AND column_name IN ('mood', 'mood_score')
     """
 
@@ -29,7 +33,7 @@ def ensure_columns_exist():
         print("⚠️ Missing columns detected! Adding 'mood' and 'mood_score'...")
 
         alter_query = """
-            ALTER TABLE `movies.raw_movies_cleaned`
+            ALTER TABLE `movies.raw_movies`
             ADD COLUMN IF NOT EXISTS mood STRING,
             ADD COLUMN IF NOT EXISTS mood_score INT64;
         """
@@ -38,20 +42,20 @@ def ensure_columns_exist():
     else:
         print("✅ Columns already exist. No changes needed.")
 
-# 🔹 2️⃣ Fetch movies from BigQuery that need mood analysis
+# Fetch movies from BigQuery that need mood analysis
 def get_movies_from_bigquery():
     """Retrieve movies without mood analysis from BigQuery."""
     client = bigquery.Client(project=PROJECT_ID)
     query = """
         SELECT movie_id, title, genres, overview
-        FROM `movies.raw_movies_cleaned`
+        FROM `movies.raw_movies`
         WHERE overview IS NOT NULL AND overview != ''
         AND (mood IS NULL OR mood_score IS NULL)  -- Ignore already processed movies
         LIMIT 10
     """
     return client.query(query).result()
 
-# 🔹 3️⃣ Analyze movie mood using Gemini-Pro
+# Analyze movie mood using Gemini-Pro
 def analyze_movie_mood(overview):
     """Analyzes the emotional tone of a movie overview using Vertex AI."""
     model = GenerativeModel(model_name=MODEL_NAME)
@@ -89,13 +93,13 @@ def analyze_movie_mood(overview):
     print("⚠️ No valid AI response. Assigning default values.")
     return "Neutral", 50  # Fallback values
 
-# 🔹 4️⃣ Update BigQuery with mood scores
+# Update BigQuery with mood scores
 def update_movie_mood_in_bigquery(movie_id, mood, score):
     """Updates the mood and mood_score of a movie in BigQuery."""
     client = bigquery.Client(project=PROJECT_ID)
 
     query = """
-        UPDATE `movies.raw_movies_cleaned`
+        UPDATE `movies.raw_movies`
         SET mood = @mood, mood_score = @score
         WHERE movie_id = @movie_id
     """
@@ -110,7 +114,7 @@ def update_movie_mood_in_bigquery(movie_id, mood, score):
     client.query(query, job_config=job_config).result()
     print(f"✅ Updated movie {movie_id} with Mood: {mood} (Score: {score})")
 
-# 🔹 5️⃣ Run the full pipeline
+# Run the full pipeline
 if __name__ == "__main__":
     # Step 1️⃣: Ensure mood columns exist in BigQuery
     ensure_columns_exist()

@@ -322,6 +322,47 @@ Sometimes the TMDB API becomes overloaded or rate-limited during long backfills,
 👉 This demonstrates the robustness and observability of Airflow for managing large-scale, year-wise data ingestion pipelines.
 
 ---
+## 📌 AI-Powered Mood Annotation (Vertex AI + BigQuery)
+
+After ingesting and merging all movie data into the `raw_movies` table, we enrich the dataset by analyzing the **emotional tone** of each movie using **Google Vertex AI** and the **Gemini Pro** model.
+
+This script generates two new columns:
+
+- `mood`: the main emotional classification (e.g., *Intense*, *Sad*, *Uplifting*…)
+- `mood_score`: a score from 0 to 100 indicating the intensity of the mood.
+
+### 🧠 Script Location
+
+📄 File: `scripts/generate_mood.py`
+
+---
+
+### ⚙️ How to Run the Script
+
+1. **Make sure you have activated Vertex AI API** in your GCP project.
+2. **Update the credentials path** at the top of the script:
+    
+    ```python
+    
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "scripts/keys/my-creds.json"
+    ```
+    
+3. **Install required packages** (if not already done):
+    
+    ```bash
+    
+    pip install -r requirements.txt
+    ```
+    
+4. **Run the script**:
+    
+    ```bash
+    
+    python scripts/generate_mood.py
+    ```
+    
+
+---
 
 ### **5️⃣ 📊 Data Exploration Dashboard with Streamlit**
 
