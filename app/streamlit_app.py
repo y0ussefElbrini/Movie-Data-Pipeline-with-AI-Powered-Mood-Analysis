@@ -8,7 +8,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path-to/my-creds.json"  # ← Up
 
 
 # 🔹 CONFIGURATION GCP
-PROJECT_ID = "terraform-demo-448809"   #change to your project name
+PROJECT_ID = "name_of_your_project"   #change to your project name
 DATASET_NAME = "movies"
 TABLE_NAME = "raw_movies_cleaned"
 

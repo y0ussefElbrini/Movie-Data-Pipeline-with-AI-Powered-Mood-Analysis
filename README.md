@@ -322,7 +322,7 @@ Sometimes the TMDB API becomes overloaded or rate-limited during long backfills,
 👉 This demonstrates the robustness and observability of Airflow for managing large-scale, year-wise data ingestion pipelines.
 
 ---
-## 📌 AI-Powered Mood Annotation (Vertex AI + BigQuery)
+## **5️⃣ 📌 AI-Powered Mood Annotation (Vertex AI + BigQuery)**
 
 After ingesting and merging all movie data into the `raw_movies` table, we enrich the dataset by analyzing the **emotional tone** of each movie using **Google Vertex AI** and the **Gemini Pro** model.
 
@@ -364,7 +364,55 @@ This script generates two new columns:
 
 ---
 
-### **5️⃣ 📊 Data Exploration Dashboard with Streamlit**
+## **6️⃣ 🧹 Data Cleaning & Processing (BigQuery)**
+
+Once the raw movie data is ingested into BigQuery through Airflow and Google Cloud Storage, multiple data cleaning and transformation steps are performed to prepare the dataset for analytics and AI-based recommendations.
+
+### 🛠️ Key Cleaning & Transformation Steps
+
+1. **🔄 Preprocessing in Airflow before BigQuery**
+A significant part of the preprocessing is handled **upstream directly in the Airflow DAG**, before the data even lands in BigQuery:
+    - The `get_movies` task in the DAG extracts structured movie data from the TMDB API.
+    - It handles:
+        - ✅ **Flattening nested fields** like genre IDs into human-readable names (using Airflow Variables and a dictionary).
+        - ✅ **Default value imputation** for fields like `budget` and `revenue` (set to `0` when missing).
+        - ✅ **Type normalization** (e.g., converting release years to integers, handling null dates).
+        - ✅ **Data filtering**: Only movies with valid IDs and available metadata are included.
+2. **🧼 Removing Duplicates in BigQuery**
+Deduplication is done using `ROW_NUMBER()` to keep only the latest entry for each `movie_id`.
+    
+    ```sql
+    
+    CREATE OR REPLACE TABLE `movies.raw_movies_cleaned` AS
+    SELECT *
+    FROM (
+      SELECT *,
+        ROW_NUMBER() OVER(PARTITION BY movie_id ORDER BY release_date DESC) AS row_num
+      FROM `movies.raw_movies`
+    )
+    WHERE row_num = 1;
+    ```
+    
+3. **🔢 Budget & Revenue Normalization**
+Replace `0` values with the column median using `APPROX_QUANTILES`, ensuring outliers don't skew the data.
+    
+    ```sql
+    CASE
+      WHEN budget = 0 THEN (SELECT APPROX_QUANTILES(budget, 100)[OFFSET(50)] FROM `movies.raw_movies_cleaned`)
+      ELSE budget
+    END AS budget
+    ```
+    
+4. **📅 Date Parsing & Enrichment**
+    - Standardize `release_date` using `DATE()` casting.
+    - Extract `release_year` and `release_month` using BigQuery’s `EXTRACT()` function.
+5. **🧾 Genre & Language Flattening**
+    - Genres are exploded from arrays for frequency analysis and dashboard visualizations.
+    - Language codes are standardized for pie chart breakdown.
+
+---
+
+### **7️⃣ 📊 Data Exploration Dashboard with Streamlit**
 
 To better understand the movie dataset, a **Streamlit dashboard** was created to visualize key insights such as:
 
@@ -402,7 +450,7 @@ Once launched, it will open a web page (usually at `http://localhost:8501`) show
 - 🎭 Top 10 movie genres
 - 🌍 Language usage across the dataset
 
-### **6️⃣🎭 AI-Powered Movie Mood Recommender**
+### **8️⃣ 🎭 AI-Powered Movie Mood Recommender**
 
 This Streamlit application allows users to **discover movies based on their emotional mood**, using descriptions enhanced by **Vertex AI**. The LLM classifies each movie into moods like *Happy, Intense, Dark, Sad...* based on their synopsis, stored in BigQuery.
 

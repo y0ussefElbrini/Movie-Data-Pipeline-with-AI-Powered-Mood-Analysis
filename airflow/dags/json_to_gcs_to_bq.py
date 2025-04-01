@@ -173,8 +173,8 @@ with DAG(
     configuration={
         "query": {
             "query": """
-                MERGE INTO `terraform-demo-448809.movies.raw_movies` AS target
-                USING `terraform-demo-448809.movies.raw_movies_temp` AS source
+                MERGE INTO `name_of_your_project.movies.raw_movies` AS target
+                USING `name_of_your_project.movies.raw_movies_temp` AS source
                 ON target.movie_id = source.movie_id
                 WHEN MATCHED THEN
                     UPDATE SET

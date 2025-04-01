@@ -23,7 +23,7 @@ def ensure_columns_exist():
     query = """
         SELECT column_name 
         FROM `movies.INFORMATION_SCHEMA.COLUMNS`
-        WHERE table_name = 'raw_movies'
+        WHERE table_name = 'raw_movies_cleaned'
         AND column_name IN ('mood', 'mood_score')
     """
 
@@ -33,7 +33,7 @@ def ensure_columns_exist():
         print("⚠️ Missing columns detected! Adding 'mood' and 'mood_score'...")
 
         alter_query = """
-            ALTER TABLE `movies.raw_movies`
+            ALTER TABLE `movies.raw_movies_cleaned`
             ADD COLUMN IF NOT EXISTS mood STRING,
             ADD COLUMN IF NOT EXISTS mood_score INT64;
         """
@@ -48,7 +48,7 @@ def get_movies_from_bigquery():
     client = bigquery.Client(project=PROJECT_ID)
     query = """
         SELECT movie_id, title, genres, overview
-        FROM `movies.raw_movies`
+        FROM `movies.raw_movies_cleaned`
         WHERE overview IS NOT NULL AND overview != ''
         AND (mood IS NULL OR mood_score IS NULL)  -- Ignore already processed movies
         LIMIT 10
@@ -99,7 +99,7 @@ def update_movie_mood_in_bigquery(movie_id, mood, score):
     client = bigquery.Client(project=PROJECT_ID)
 
     query = """
-        UPDATE `movies.raw_movies`
+        UPDATE `movies.raw_movies_cleaned`
         SET mood = @mood, mood_score = @score
         WHERE movie_id = @movie_id
     """
